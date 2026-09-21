@@ -389,6 +389,21 @@
                         android:layout_marginTop="12dp"
                         android:text="@string/switch_vibrate" />
 
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchEnhancedMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/switch_enhanced_mode" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/switch_enhanced_mode_summary"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

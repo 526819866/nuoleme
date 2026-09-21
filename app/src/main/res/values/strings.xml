@@ -12,6 +12,8 @@
     <string name="hint_plates">例如 鄂A12345、沪B·12345</string>
     <string name="helper_default_keywords">默认严格关键词会一直生效，这里用于补充你的自定义命中词。</string>
     <string name="switch_vibrate">报警时震动</string>
+    <string name="switch_enhanced_mode">增强模式（适用于小米等系统）</string>
+    <string name="switch_enhanced_mode_summary">通过监听短信数据库确保收到所有短信，会常驻后台但不耗电。小米系统建议开启。</string>
     <string name="home_toggle_label">挪车短信守护</string>
     <string name="button_open_app_settings">应用详情设置</string>
     <string name="button_open_battery_settings">电池优化设置</string>

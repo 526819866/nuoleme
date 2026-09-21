@@ -40,6 +40,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var editPlates: TextInputEditText
     private lateinit var inputDuration: MaterialAutoCompleteTextView
     private lateinit var switchVibrate: SwitchMaterial
+    private lateinit var switchEnhancedMode: SwitchMaterial
     private lateinit var chipSmsPermission: Chip
     private lateinit var chipNotificationPermission: Chip
     private lateinit var chipFullScreenPermission: Chip
@@ -94,6 +95,7 @@ class SettingsActivity : AppCompatActivity() {
         editPlates = findViewById(R.id.editPlates)
         inputDuration = findViewById(R.id.inputAlarmDuration)
         switchVibrate = findViewById(R.id.switchVibrate)
+        switchEnhancedMode = findViewById(R.id.switchEnhancedMode)
         chipSmsPermission = findViewById(R.id.chipSmsPermission)
         chipNotificationPermission = findViewById(R.id.chipNotificationPermission)
         chipFullScreenPermission = findViewById(R.id.chipFullScreenPermission)
@@ -203,6 +205,7 @@ class SettingsActivity : AppCompatActivity() {
         editPlates.setText(SettingsStore.formatEditorInput(settings.plateNumbers))
         inputDuration.setText(SettingsPresentation.durationLabel(this, settings.alarmDurationSeconds), false)
         switchVibrate.isChecked = settings.vibrate
+        switchEnhancedMode.isChecked = settings.enhancedMode
     }
 
     private fun collectSettings(): AppSettings {
@@ -212,6 +215,7 @@ class SettingsActivity : AppCompatActivity() {
             plateNumbers = SettingsStore.sanitizePlateNumbers(editPlates.text?.toString().orEmpty()),
             alarmDurationSeconds = durationSecondsFor(inputDuration.text?.toString().orEmpty()),
             vibrate = switchVibrate.isChecked,
+            enhancedMode = switchEnhancedMode.isChecked,
         )
     }
 

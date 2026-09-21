@@ -130,6 +130,7 @@ class MainActivity : AppCompatActivity() {
     private fun setGuardEnabled(enabled: Boolean) {
         val currentSettings = SettingsStore.load(this)
         SettingsStore.save(this, currentSettings.copy(enabled = enabled))
+        updateEnhancedService()
         refreshUi()
     }
 
@@ -142,6 +143,16 @@ class MainActivity : AppCompatActivity() {
         val health = GuardHealth.read(this)
         renderDashboard(settings, health)
         renderPermissionChips(health)
+        updateEnhancedService()
+    }
+
+    private fun updateEnhancedService() {
+        val settings = SettingsStore.load(this)
+        if (settings.enabled && settings.enhancedMode) {
+            SmsEnhancedService.start(this)
+        } else {
+            SmsEnhancedService.stop(this)
+        }
     }
 
     private fun renderDashboard(settings: AppSettings, health: GuardHealth) {

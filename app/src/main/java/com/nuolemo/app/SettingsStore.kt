@@ -9,6 +9,7 @@ data class AppSettings(
     val plateNumbers: List<String>,
     val alarmDurationSeconds: Int,
     val vibrate: Boolean,
+    val enhancedMode: Boolean = false,
 )
 
 object SettingsStore {
@@ -18,6 +19,7 @@ object SettingsStore {
     private const val KEY_PLATE_NUMBERS = "plate_numbers"
     private const val KEY_ALARM_DURATION_SECONDS = "alarm_duration_seconds"
     private const val KEY_VIBRATE = "vibrate"
+    private const val KEY_ENHANCED_MODE = "enhanced_mode"
     private const val LEGACY_KEY_MAXIMIZE_VOLUME = "maximize_volume"
 
     val defaultKeywords: List<String> =
@@ -46,6 +48,7 @@ object SettingsStore {
                 prefs.getInt(KEY_ALARM_DURATION_SECONDS, 60),
             ),
             vibrate = prefs.getBoolean(KEY_VIBRATE, true),
+            enhancedMode = prefs.getBoolean(KEY_ENHANCED_MODE, false),
         )
     }
 
@@ -60,6 +63,7 @@ object SettingsStore {
             .putString(KEY_PLATE_NUMBERS, formatEditorInput(sanitizedPlates))
             .putInt(KEY_ALARM_DURATION_SECONDS, normalizeDuration(settings.alarmDurationSeconds))
             .putBoolean(KEY_VIBRATE, settings.vibrate)
+            .putBoolean(KEY_ENHANCED_MODE, settings.enhancedMode)
             .remove(LEGACY_KEY_MAXIMIZE_VOLUME)
             .apply()
     }
