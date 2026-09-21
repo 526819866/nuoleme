@@ -55,9 +55,13 @@ object AlarmPlaybackController {
                 lastSender = sender
                 lastBody = body
                 onStoppedListener = onStopped
-                if (settings.vibrate && vibrator == null) {
+
+                // 根据报警模式更新震动状态
+                val shouldVibrate = settings.alarmMode == AlarmMode.SOUND_AND_VIBRATE ||
+                                   settings.alarmMode == AlarmMode.VIBRATE_ONLY
+                if (shouldVibrate && vibrator == null) {
                     startVibrationLocked(appContext)
-                } else if (!settings.vibrate) {
+                } else if (!shouldVibrate) {
                     cancelVibrationLocked()
                 }
                 scheduleStopLocked(settings.alarmDurationSeconds)
@@ -73,15 +77,21 @@ object AlarmPlaybackController {
             lastBody = body
             onStoppedListener = onStopped
 
-            mediaPlayer = createAlarmPlayer(appContext)
-            mediaPlayer?.let { player ->
-                if (runCatching { player.start() }.isFailure) {
-                    runCatching { player.release() }
-                    mediaPlayer = null
+            // 根据报警模式启动响铃
+            if (settings.alarmMode == AlarmMode.SOUND_AND_VIBRATE ||
+                settings.alarmMode == AlarmMode.SOUND_ONLY) {
+                mediaPlayer = createAlarmPlayer(appContext)
+                mediaPlayer?.let { player ->
+                    if (runCatching { player.start() }.isFailure) {
+                        runCatching { player.release() }
+                        mediaPlayer = null
+                    }
                 }
             }
 
-            if (settings.vibrate) {
+            // 根据报警模式启动震动
+            if (settings.alarmMode == AlarmMode.SOUND_AND_VIBRATE ||
+                settings.alarmMode == AlarmMode.VIBRATE_ONLY) {
                 startVibrationLocked(appContext)
             }
 

@@ -3,6 +3,12 @@ package com.nuolemo.app
 import android.content.Context
 import java.util.Locale
 
+enum class AlarmMode {
+    SOUND_AND_VIBRATE,  // 响铃+震动
+    SOUND_ONLY,         // 仅响铃
+    VIBRATE_ONLY        // 仅震动
+}
+
 data class AppSettings(
     val enabled: Boolean,
     val keywords: List<String>,
@@ -10,6 +16,7 @@ data class AppSettings(
     val alarmDurationSeconds: Int,
     val vibrate: Boolean,
     val enhancedMode: Boolean = false,
+    val alarmMode: AlarmMode = AlarmMode.SOUND_AND_VIBRATE,
 )
 
 object SettingsStore {
@@ -20,6 +27,7 @@ object SettingsStore {
     private const val KEY_ALARM_DURATION_SECONDS = "alarm_duration_seconds"
     private const val KEY_VIBRATE = "vibrate"
     private const val KEY_ENHANCED_MODE = "enhanced_mode"
+    private const val KEY_ALARM_MODE = "alarm_mode"
     private const val LEGACY_KEY_MAXIMIZE_VOLUME = "maximize_volume"
 
     val defaultKeywords: List<String> =
@@ -36,6 +44,21 @@ object SettingsStore {
 
     fun load(context: Context): AppSettings {
         val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        // 处理旧版本的 vibrate 设置迁移到新的 alarmMode
+        val legacyVibrate = prefs.getBoolean(KEY_VIBRATE, true)
+        val alarmModeString = prefs.getString(KEY_ALARM_MODE, null)
+        val alarmMode = if (alarmModeString != null) {
+            try {
+                AlarmMode.valueOf(alarmModeString)
+            } catch (e: IllegalArgumentException) {
+                if (legacyVibrate) AlarmMode.SOUND_AND_VIBRATE else AlarmMode.SOUND_ONLY
+            }
+        } else {
+            // 首次运行，根据旧的 vibrate 设置决定默认值
+            if (legacyVibrate) AlarmMode.SOUND_AND_VIBRATE else AlarmMode.SOUND_ONLY
+        }
+
         return AppSettings(
             enabled = prefs.getBoolean(KEY_ENABLED, true),
             keywords = sanitizeCustomKeywords(
@@ -47,8 +70,9 @@ object SettingsStore {
             alarmDurationSeconds = normalizeDuration(
                 prefs.getInt(KEY_ALARM_DURATION_SECONDS, 60),
             ),
-            vibrate = prefs.getBoolean(KEY_VIBRATE, true),
+            vibrate = legacyVibrate,
             enhancedMode = prefs.getBoolean(KEY_ENHANCED_MODE, false),
+            alarmMode = alarmMode,
         )
     }
 
@@ -64,6 +88,7 @@ object SettingsStore {
             .putInt(KEY_ALARM_DURATION_SECONDS, normalizeDuration(settings.alarmDurationSeconds))
             .putBoolean(KEY_VIBRATE, settings.vibrate)
             .putBoolean(KEY_ENHANCED_MODE, settings.enhancedMode)
+            .putString(KEY_ALARM_MODE, settings.alarmMode.name)
             .remove(LEGACY_KEY_MAXIMIZE_VOLUME)
             .apply()
     }

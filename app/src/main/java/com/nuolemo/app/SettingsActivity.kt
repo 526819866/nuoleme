@@ -22,6 +22,7 @@ import com.google.android.material.textfield.TextInputEditText
 
 class SettingsActivity : AppCompatActivity() {
     private data class DurationOption(val seconds: Int, val label: String)
+    private data class AlarmModeOption(val mode: AlarmMode, val label: String)
 
     private val durationOptions by lazy {
         listOf(
@@ -32,6 +33,14 @@ class SettingsActivity : AppCompatActivity() {
         )
     }
 
+    private val alarmModeOptions by lazy {
+        listOf(
+            AlarmModeOption(AlarmMode.SOUND_AND_VIBRATE, getString(R.string.alarm_mode_sound_and_vibrate)),
+            AlarmModeOption(AlarmMode.SOUND_ONLY, getString(R.string.alarm_mode_sound_only)),
+            AlarmModeOption(AlarmMode.VIBRATE_ONLY, getString(R.string.alarm_mode_vibrate_only)),
+        )
+    }
+
     private lateinit var rootView: View
     private lateinit var scrollView: View
     private lateinit var bottomActionBar: View
@@ -39,6 +48,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var editKeywords: TextInputEditText
     private lateinit var editPlates: TextInputEditText
     private lateinit var inputDuration: MaterialAutoCompleteTextView
+    private lateinit var inputAlarmMode: MaterialAutoCompleteTextView
     private lateinit var switchVibrate: SwitchMaterial
     private lateinit var switchEnhancedMode: SwitchMaterial
     private lateinit var chipSmsPermission: Chip
@@ -68,6 +78,7 @@ class SettingsActivity : AppCompatActivity() {
         bindViews()
         applySystemBarInsets()
         setupDurationMenu()
+        setupAlarmModeMenu()
         populateSettings(SettingsStore.load(this))
         settingsPopulated = true
         bindActions()
@@ -94,6 +105,7 @@ class SettingsActivity : AppCompatActivity() {
         editKeywords = findViewById(R.id.editKeywords)
         editPlates = findViewById(R.id.editPlates)
         inputDuration = findViewById(R.id.inputAlarmDuration)
+        inputAlarmMode = findViewById(R.id.inputAlarmMode)
         switchVibrate = findViewById(R.id.switchVibrate)
         switchEnhancedMode = findViewById(R.id.switchEnhancedMode)
         chipSmsPermission = findViewById(R.id.chipSmsPermission)
@@ -150,6 +162,11 @@ class SettingsActivity : AppCompatActivity() {
         inputDuration.keyListener = null
     }
 
+    private fun setupAlarmModeMenu() {
+        inputAlarmMode.setSimpleItems(alarmModeOptions.map { it.label }.toTypedArray())
+        inputAlarmMode.keyListener = null
+    }
+
     private fun bindActions() {
         buttonBack.setOnClickListener { saveAndFinish() }
 
@@ -204,6 +221,7 @@ class SettingsActivity : AppCompatActivity() {
         editKeywords.setText(SettingsStore.formatEditorInput(settings.keywords))
         editPlates.setText(SettingsStore.formatEditorInput(settings.plateNumbers))
         inputDuration.setText(SettingsPresentation.durationLabel(this, settings.alarmDurationSeconds), false)
+        inputAlarmMode.setText(alarmModeLabelFor(settings.alarmMode), false)
         switchVibrate.isChecked = settings.vibrate
         switchEnhancedMode.isChecked = settings.enhancedMode
     }
@@ -214,6 +232,7 @@ class SettingsActivity : AppCompatActivity() {
             keywords = SettingsStore.sanitizeKeywords(editKeywords.text?.toString().orEmpty()),
             plateNumbers = SettingsStore.sanitizePlateNumbers(editPlates.text?.toString().orEmpty()),
             alarmDurationSeconds = durationSecondsFor(inputDuration.text?.toString().orEmpty()),
+            alarmMode = alarmModeFor(inputAlarmMode.text?.toString().orEmpty()),
             vibrate = switchVibrate.isChecked,
             enhancedMode = switchEnhancedMode.isChecked,
         )
@@ -301,6 +320,15 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun durationSecondsFor(label: String): Int {
         return durationOptions.firstOrNull { it.label == label }?.seconds ?: 60
+    }
+
+    private fun alarmModeFor(label: String): AlarmMode {
+        return alarmModeOptions.firstOrNull { it.label == label }?.mode ?: AlarmMode.SOUND_AND_VIBRATE
+    }
+
+    private fun alarmModeLabelFor(mode: AlarmMode): String {
+        return alarmModeOptions.firstOrNull { it.mode == mode }?.label
+            ?: getString(R.string.alarm_mode_sound_and_vibrate)
     }
 
     private fun styleChip(chip: Chip, text: String, tone: Tone) {

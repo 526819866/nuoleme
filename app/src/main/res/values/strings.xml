@@ -8,6 +8,7 @@
     <string name="field_keywords">关键词</string>
     <string name="field_plates">车牌号</string>
     <string name="field_duration">报警时长</string>
+    <string name="field_alarm_mode">叫醒方式</string>
     <string name="hint_keywords">每行或用逗号输入一个关键词，例如 地库堵门、挡道</string>
     <string name="hint_plates">例如 鄂A12345、沪B·12345</string>
     <string name="helper_default_keywords">默认严格关键词会一直生效，这里用于补充你的自定义命中词。</string>
@@ -28,6 +29,9 @@
     <string name="duration_60">60 秒</string>
     <string name="duration_120">120 秒</string>
     <string name="duration_manual">手动停止（最多 5 分钟）</string>
+    <string name="alarm_mode_sound_and_vibrate">响铃 + 震动</string>
+    <string name="alarm_mode_sound_only">仅响铃</string>
+    <string name="alarm_mode_vibrate_only">仅震动</string>
     <string name="home_rules_overview">关键词 %1$d 条，车牌 %2$d 个</string>
     <string name="home_rules_overview_no_plate">关键词 %1$d 条，暂未配置车牌</string>
     <string name="home_alarm_overview">报警时长 %1$s · 震动 %2$s · 声音 %3$s</string>
