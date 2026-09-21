@@ -67,6 +67,16 @@ object EventLogger {
             .apply()
     }
 
+    /**
+     * 记录调试信息（用于排查问题）
+     */
+    fun log(context: Context, tag: String, message: String) {
+        val timestamp = System.currentTimeMillis()
+        val dateFormat = SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault())
+        val timeStr = dateFormat.format(Date(timestamp))
+        android.util.Log.d("EventLogger", "[$timeStr] $tag: $message")
+    }
+
     fun formatEvent(event: SmsEvent): String {
         val dateFormat = SimpleDateFormat("MM-dd HH:mm:ss", Locale.getDefault())
         val time = dateFormat.format(Date(event.timestamp))

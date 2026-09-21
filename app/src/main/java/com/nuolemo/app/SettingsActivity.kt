@@ -155,7 +155,12 @@ class SettingsActivity : AppCompatActivity() {
             if (SystemSettingsNavigator.hasSmsPermission(this)) {
                 SystemSettingsNavigator.openAppDetailsSettings(this)
             } else {
-                permissionLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS))
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.RECEIVE_SMS,
+                        Manifest.permission.READ_SMS
+                    )
+                )
             }
         }
 
