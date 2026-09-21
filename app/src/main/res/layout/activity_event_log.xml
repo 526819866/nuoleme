@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="@color/screen_background">
 
     <ScrollView
         android:id="@+id/logScrollView"
@@ -27,7 +27,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/divider" />
+        android:background="@color/outline_soft" />
 
     <Button
         android:id="@+id/clearLogButton"
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="清空日志"
-        android:textColor="@color/destructive"
+        android:textColor="@color/status_danger_fg"
         style="@style/Widget.Material3.Button.OutlinedButton" />
 
 </LinearLayout>
