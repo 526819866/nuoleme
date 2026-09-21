@@ -37,6 +37,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".EventLogActivity"
+            android:excludeFromRecents="true"
+            android:exported="false" />
+
+        <activity
             android:name=".AlarmActivity"
             android:excludeFromRecents="true"
             android:exported="false"

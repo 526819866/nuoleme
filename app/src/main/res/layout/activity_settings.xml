@@ -463,6 +463,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@string/button_open_app_settings" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonViewEventLog"
+                        style="@style/Widget.Nuolemo.Button.Text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="查看短信接收日志" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

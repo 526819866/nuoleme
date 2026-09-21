@@ -7,14 +7,19 @@ object SmsMatcher {
 
     @Suppress("UNUSED_PARAMETER")
     fun matches(settings: AppSettings, sender: String?, body: String): Boolean {
+        return matchWithReason(settings, sender, body).matched
+    }
+
+    fun matchWithReason(settings: AppSettings, sender: String?, body: String): MatchResult {
         val normalizedBody = body.trim()
         if (normalizedBody.isEmpty()) {
-            return false
+            return MatchResult(false, "短信内容为空")
         }
 
         val keywordPool = SettingsStore.activeKeywords(settings.keywords)
-        if (keywordPool.any { normalizedBody.contains(it, ignoreCase = true) }) {
-            return true
+        val matchedKeyword = keywordPool.firstOrNull { normalizedBody.contains(it, ignoreCase = true) }
+        if (matchedKeyword != null) {
+            return MatchResult(true, "命中关键词: $matchedKeyword")
         }
 
         val compactBody = normalizePlateText(normalizedBody)
@@ -22,10 +27,12 @@ object SmsMatcher {
             settings.plateNumbers
                 .map(::normalizePlate)
                 .filter { it.length >= MIN_PLATE_TOKEN_LENGTH }
-        if (compactPlates.any { compactBody.contains(it) }) {
-            return true
+        val matchedPlate = compactPlates.firstOrNull { compactBody.contains(it) }
+        if (matchedPlate != null) {
+            return MatchResult(true, "命中车牌: $matchedPlate")
         }
-        return false
+
+        return MatchResult(false, "未匹配任何关键词或车牌")
     }
 
     internal fun normalizePlate(rawValue: String): String {

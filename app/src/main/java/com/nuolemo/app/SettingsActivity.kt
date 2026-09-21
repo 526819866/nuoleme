@@ -47,6 +47,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var buttonOpenFullScreenSettings: MaterialButton
     private lateinit var buttonOpenAppSettings: MaterialButton
     private lateinit var buttonOpenBatterySettings: MaterialButton
+    private lateinit var buttonViewEventLog: MaterialButton
     private lateinit var buttonSaveAndClose: MaterialButton
     private lateinit var buttonTestAlarm: MaterialButton
     private lateinit var buttonBack: MaterialButton
@@ -100,6 +101,7 @@ class SettingsActivity : AppCompatActivity() {
         buttonOpenFullScreenSettings = findViewById(R.id.buttonFullScreenSettings)
         buttonOpenAppSettings = findViewById(R.id.buttonOpenAppSettings)
         buttonOpenBatterySettings = findViewById(R.id.buttonOpenBatterySettings)
+        buttonViewEventLog = findViewById(R.id.buttonViewEventLog)
         buttonSaveAndClose = findViewById(R.id.buttonSaveAndClose)
         buttonTestAlarm = findViewById(R.id.buttonTestAlarm)
         buttonBack = findViewById(R.id.buttonBack)
@@ -174,6 +176,10 @@ class SettingsActivity : AppCompatActivity() {
 
         buttonOpenBatterySettings.setOnClickListener {
             SystemSettingsNavigator.openBatteryOptimizationSettings(this)
+        }
+
+        buttonViewEventLog.setOnClickListener {
+            startActivity(Intent(this, EventLogActivity::class.java))
         }
 
         buttonSaveAndClose.setOnClickListener {

@@ -27,10 +27,15 @@ class SmsReceiver : BroadcastReceiver() {
                 message.displayMessageBody ?: message.messageBody ?: ""
             }.trim()
 
-        if (!SmsMatcher.matches(settings, sender, body)) {
-            return
+        val matchResult = SmsMatcher.matchWithReason(settings, sender, body)
+
+        val triggered = if (matchResult.matched) {
+            AlarmLaunchHelper.startAlarm(context, sender, body)
+            true
+        } else {
+            false
         }
 
-        AlarmLaunchHelper.startAlarm(context, sender, body)
+        EventLogger.logSmsReceived(context, sender, body, matchResult, triggered)
     }
 }
