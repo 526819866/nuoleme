@@ -292,6 +292,17 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonViewEventLog"
+                style="@style/Widget.Nuolemo.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/button_view_event_log"
+                app:icon="@drawable/ic_log"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

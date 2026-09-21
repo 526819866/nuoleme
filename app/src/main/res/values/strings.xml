@@ -81,6 +81,7 @@
     <string name="home_alarm_label">提醒方式</string>
     <string name="home_plan_hint">命中后才会临时启动报警；停止响铃后自动回到安静待命。</string>
     <string name="home_privacy_note">全离线 · 不上传短信 · 平时不常驻耗电</string>
+    <string name="button_view_event_log">查看触发日志</string>
 
     <!-- 低频设置页 -->
     <string name="button_back">返回</string>

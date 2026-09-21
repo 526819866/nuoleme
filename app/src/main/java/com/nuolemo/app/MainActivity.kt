@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chipFullScreenPermission: Chip
     private lateinit var buttonPrimaryAction: MaterialButton
     private lateinit var buttonOpenSettings: MaterialButton
+    private lateinit var buttonViewEventLog: MaterialButton
 
     private var renderingState = false
     private var primaryAction = PrimaryAction.OPEN_SETTINGS
@@ -82,6 +83,7 @@ class MainActivity : AppCompatActivity() {
         chipFullScreenPermission = findViewById(R.id.chipFullScreenPermission)
         buttonPrimaryAction = findViewById(R.id.buttonPrimaryAction)
         buttonOpenSettings = findViewById(R.id.buttonOpenSettings)
+        buttonViewEventLog = findViewById(R.id.buttonViewEventLog)
     }
 
     private fun applySystemBarInsets() {
@@ -118,6 +120,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         buttonOpenSettings.setOnClickListener { openSettings() }
+        buttonViewEventLog.setOnClickListener {
+            startActivity(Intent(this, EventLogActivity::class.java))
+        }
         buttonPrimaryAction.setOnClickListener {
             when (primaryAction) {
                 PrimaryAction.OPEN_SETTINGS -> openSettings()
