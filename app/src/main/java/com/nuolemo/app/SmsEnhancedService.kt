@@ -52,8 +52,8 @@ class SmsEnhancedService : Service() {
         initShizuku()
 
         // 注册短信数据库监听
-        smsObserver = SmsObserver(this) { body, timestamp ->
-            handleSmsFromDatabase(body, timestamp)
+        smsObserver = SmsObserver(this) { sender, body, timestamp ->
+            handleSmsFromDatabase(sender, body, timestamp)
         }
 
         contentResolver.registerContentObserver(
@@ -105,7 +105,7 @@ class SmsEnhancedService : Service() {
         return START_STICKY
     }
 
-    private fun handleSmsFromDatabase(body: String, timestamp: Long) {
+    private fun handleSmsFromDatabase(sender: String?, body: String, timestamp: Long) {
         lastCheckTime = System.currentTimeMillis()
         smsProcessedCount++
         updateNotification()
@@ -116,21 +116,21 @@ class SmsEnhancedService : Service() {
             return
         }
 
-        // 从短信内容中提取发送者（如果有）
-        val sender = extractSender(body)
+        // 优先使用数据库中的发送者，如果没有则尝试从内容提取
+        val finalSender = sender ?: extractSender(body)
 
-        val matchResult = SmsMatcher.matchWithReason(settings, sender, body)
+        val matchResult = SmsMatcher.matchWithReason(settings, finalSender, body)
 
         val triggered = if (matchResult.matched) {
             Log.d(TAG, "匹配成功: ${matchResult.reason}")
-            AlarmLaunchHelper.startAlarm(this, sender, body)
+            AlarmLaunchHelper.startAlarm(this, finalSender, body)
             true
         } else {
             Log.d(TAG, "未匹配: ${matchResult.reason}")
             false
         }
 
-        EventLogger.logSmsReceived(this, sender, body, matchResult, triggered)
+        EventLogger.logSmsReceived(this, finalSender, body, matchResult, triggered)
         EventLogger.log(this, "增强模式处理", "来源: 数据库, 触发: $triggered")
     }
 

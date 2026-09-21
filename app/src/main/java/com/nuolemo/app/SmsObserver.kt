@@ -17,7 +17,7 @@ import android.util.Log
  */
 class SmsObserver(
     private val context: Context,
-    private val onSmsReceived: (body: String, timestamp: Long) -> Unit
+    private val onSmsReceived: (sender: String?, body: String, timestamp: Long) -> Unit
 ) : ContentObserver(Handler(Looper.getMainLooper())) {
 
     private var lastProcessedTimestamp: Long = 0
@@ -39,6 +39,7 @@ class SmsObserver(
             val cursor: Cursor? = context.contentResolver.query(
                 Telephony.Sms.CONTENT_URI,
                 arrayOf(
+                    Telephony.Sms.ADDRESS,
                     Telephony.Sms.BODY,
                     Telephony.Sms.DATE
                 ),
@@ -49,10 +50,12 @@ class SmsObserver(
 
             cursor?.use {
                 if (it.moveToFirst()) {
+                    val addressIndex = it.getColumnIndex(Telephony.Sms.ADDRESS)
                     val bodyIndex = it.getColumnIndex(Telephony.Sms.BODY)
                     val dateIndex = it.getColumnIndex(Telephony.Sms.DATE)
 
                     if (bodyIndex >= 0 && dateIndex >= 0) {
+                        val sender = if (addressIndex >= 0) it.getString(addressIndex) else null
                         val body = it.getString(bodyIndex) ?: ""
                         val timestamp = it.getLong(dateIndex)
 
@@ -64,7 +67,7 @@ class SmsObserver(
                             val now = System.currentTimeMillis()
                             if (now - timestamp <= 5000) {
                                 Log.d(TAG, "检测到新短信: ${body.take(20)}... (${now - timestamp}ms前)")
-                                onSmsReceived(body, timestamp)
+                                onSmsReceived(sender, body, timestamp)
                             } else {
                                 Log.d(TAG, "忽略旧短信: ${(now - timestamp) / 1000}秒前")
                             }
