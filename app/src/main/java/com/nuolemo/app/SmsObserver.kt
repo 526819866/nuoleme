@@ -58,19 +58,24 @@ class SmsObserver(
                         val sender = if (addressIndex >= 0) it.getString(addressIndex) else null
                         val body = it.getString(bodyIndex) ?: ""
                         val timestamp = it.getLong(dateIndex)
+                        val now = System.currentTimeMillis()
+                        val ageSeconds = (now - timestamp) / 1000
+
+                        Log.d(TAG, "查询到短信: 发送者=$sender, 内容=${body.take(20)}..., ${ageSeconds}秒前")
 
                         // 防止重复处理
                         if (timestamp > lastProcessedTimestamp) {
                             lastProcessedTimestamp = timestamp
 
-                            // 只处理5秒内的新短信
-                            val now = System.currentTimeMillis()
-                            if (now - timestamp <= 5000) {
-                                Log.d(TAG, "检测到新短信: ${body.take(20)}... (${now - timestamp}ms前)")
+                            // 只处理30秒内的新短信（与 SmsReceiver 保持一致）
+                            if (now - timestamp <= 30000) {
+                                Log.d(TAG, "检测到新短信，准备处理")
                                 onSmsReceived(sender, body, timestamp)
                             } else {
-                                Log.d(TAG, "忽略旧短信: ${(now - timestamp) / 1000}秒前")
+                                Log.d(TAG, "忽略旧短信: ${ageSeconds}秒前")
                             }
+                        } else {
+                            Log.d(TAG, "忽略已处理过的短信 (timestamp=$timestamp, lastProcessed=$lastProcessedTimestamp)")
                         }
                     }
                 }
