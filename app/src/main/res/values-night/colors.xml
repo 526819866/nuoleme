@@ -24,4 +24,7 @@
     <color name="status_warning_fg">#FBBF24</color>
     <color name="status_danger_bg">#7F1D1D</color>
     <color name="status_danger_fg">#F87171</color>
+
+    <color name="parking_active">#3B82F6</color>
+    <color name="parking_idle">#475569</color>
 </resources>

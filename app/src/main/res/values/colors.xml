@@ -34,4 +34,7 @@
     <color name="alarm_highlight">#FF6B6B</color>
     <color name="alarm_button_bg">#FF6B6B</color>
     <color name="alarm_slide_track">#FFE4E6</color>
+
+    <color name="parking_active">#3B82F6</color>
+    <color name="parking_idle">#94A3B8</color>
 </resources>

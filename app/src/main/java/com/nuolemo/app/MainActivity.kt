@@ -37,6 +37,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonPrimaryAction: MaterialButton
     private lateinit var buttonOpenSettings: MaterialButton
     private lateinit var buttonViewEventLog: MaterialButton
+    private lateinit var layoutParkingIdle: View
+    private lateinit var layoutParkingActive: View
+    private lateinit var textParkingDurationMain: TextView
+    private lateinit var textParkingLocationMain: TextView
+    private lateinit var buttonStartParking: MaterialButton
+    private lateinit var buttonParkingHistory: MaterialButton
+    private lateinit var buttonViewParking: MaterialButton
 
     private var renderingState = false
     private var primaryAction = PrimaryAction.OPEN_SETTINGS
@@ -84,6 +91,13 @@ class MainActivity : AppCompatActivity() {
         buttonPrimaryAction = findViewById(R.id.buttonPrimaryAction)
         buttonOpenSettings = findViewById(R.id.buttonOpenSettings)
         buttonViewEventLog = findViewById(R.id.buttonViewEventLog)
+        layoutParkingIdle = findViewById(R.id.layoutParkingIdle)
+        layoutParkingActive = findViewById(R.id.layoutParkingActive)
+        textParkingDurationMain = findViewById(R.id.textParkingDurationMain)
+        textParkingLocationMain = findViewById(R.id.textParkingLocationMain)
+        buttonStartParking = findViewById(R.id.buttonStartParking)
+        buttonParkingHistory = findViewById(R.id.buttonParkingHistory)
+        buttonViewParking = findViewById(R.id.buttonViewParking)
     }
 
     private fun applySystemBarInsets() {
@@ -123,6 +137,15 @@ class MainActivity : AppCompatActivity() {
         buttonViewEventLog.setOnClickListener {
             startActivity(Intent(this, EventLogActivity::class.java))
         }
+
+        buttonStartParking.setOnClickListener { startParking() }
+        buttonParkingHistory.setOnClickListener {
+            startActivity(Intent(this, ParkingHistoryActivity::class.java))
+        }
+        buttonViewParking.setOnClickListener {
+            startActivity(Intent(this, ParkingActivity::class.java))
+        }
+
         buttonPrimaryAction.setOnClickListener {
             when (primaryAction) {
                 PrimaryAction.OPEN_SETTINGS -> openSettings()
@@ -148,7 +171,39 @@ class MainActivity : AppCompatActivity() {
         val health = GuardHealth.read(this)
         renderDashboard(settings, health)
         renderPermissionChips(health)
+        refreshParkingCard()
         updateEnhancedService()
+    }
+
+    private fun refreshParkingCard() {
+        val record = ParkingStore.getCurrentRecord(this)
+        if (record != null) {
+            layoutParkingIdle.visibility = View.GONE
+            layoutParkingActive.visibility = View.VISIBLE
+            textParkingDurationMain.text = record.getFormattedDuration()
+            textParkingLocationMain.text = record.location ?: getString(R.string.parking_no_location)
+        } else {
+            layoutParkingIdle.visibility = View.VISIBLE
+            layoutParkingActive.visibility = View.GONE
+        }
+    }
+
+    private fun startParking() {
+        val record = ParkingRecord(
+            startTime = System.currentTimeMillis(),
+            location = null,
+            photoPath = null,
+            reminderMinutes = 0,
+            reminderScheduled = false
+        )
+        ParkingStore.saveCurrentRecord(this, record)
+        ParkingTimerService.start(this)
+
+        // 刷新卡片显示
+        refreshParkingCard()
+
+        // 打开详情页让用户设置车位信息和提醒
+        startActivity(Intent(this, ParkingActivity::class.java))
     }
 
     private fun updateEnhancedService() {
