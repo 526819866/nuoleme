@@ -111,9 +111,8 @@
                 android:layout_height="200dp"
                 android:layout_marginTop="16dp"
                 android:contentDescription="停车照片"
-                android:scaleType="centerCrop"
+                android:scaleType="centerCrop" />
                 android:visibility="gone"
-                app:cornerRadius="12dp" />
 
             <!-- 操作按钮 -->
             <com.google.android.material.button.MaterialButton
@@ -138,7 +137,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonEndParking"
-                style="@style/Widget.Nuolemo.Button.Filled"
+                style="@style/Widget.Nuolemo.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"

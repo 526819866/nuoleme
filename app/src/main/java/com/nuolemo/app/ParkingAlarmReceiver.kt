@@ -30,25 +30,13 @@ class ParkingAlarmReceiver : BroadcastReceiver() {
 
         // 根据设置选择提醒方式
         if (settings.useFullScreenAlert) {
-            // 使用全屏强提醒（类似挪车报警）
+            // 复用挪车报警（AlarmService 全屏 + 响铃震动，失败时自动降级为紧急通知）
             Log.d(TAG, "使用全屏强提醒")
-            val launchResult = AlarmLaunchHelper.startAlarm(context, "停车提醒", body)
-            if (launchResult == AlarmLaunchResult.FOREGROUND_SERVICE_STARTED) {
-                context.startActivity(
-                    AlarmNotifier.createAlarmActivityIntent(context, "停车提醒", body)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-            } else {
-                // 兜底：只弹窗不启动服务
-                context.startActivity(
-                    AlarmNotifier.createAlarmActivityIntent(context, "停车提醒", body)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-            }
+            AlarmLaunchHelper.startAlarm(context, "停车提醒", body)
         } else {
             // 使用普通高优先级通知
             Log.d(TAG, "使用高优先级通知")
-            AlarmNotifier.showNotification(context, "停车提醒", body)
+            AlarmNotifier.showUrgentAlarmNotification(context, "停车提醒", body)
         }
 
         EventLogger.log(context, "停车提醒", "已停 $duration, 位置: $location")

@@ -1,10 +1,24 @@
 package com.nuolemo.app
 
+import org.json.JSONObject
+
 /**
- * 停车提醒设置
+ * 停车提醒设置（AlarmMode 复用挪车报警的枚举）
  */
 data class ParkingSettings(
     val reminderAlarmMode: AlarmMode = AlarmMode.SOUND_AND_VIBRATE,
-    val reminderDurationSeconds: Int = 60,  // 提醒持续时长
-    val useFullScreenAlert: Boolean = true   // 是否使用全屏提醒（类似挪车报警）
-)
+    val useFullScreenAlert: Boolean = true,
+) {
+    fun toJson(): JSONObject = JSONObject()
+        .put("reminderAlarmMode", reminderAlarmMode.name)
+        .put("useFullScreenAlert", useFullScreenAlert)
+
+    companion object {
+        fun fromJson(obj: JSONObject): ParkingSettings = ParkingSettings(
+            reminderAlarmMode = runCatching {
+                AlarmMode.valueOf(obj.optString("reminderAlarmMode"))
+            }.getOrDefault(AlarmMode.SOUND_AND_VIBRATE),
+            useFullScreenAlert = obj.optBoolean("useFullScreenAlert", true),
+        )
+    }
+}

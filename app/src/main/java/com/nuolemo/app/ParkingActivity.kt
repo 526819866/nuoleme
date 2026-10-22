@@ -174,13 +174,14 @@ class ParkingActivity : AppCompatActivity() {
 
     private fun launchCamera() {
         val photoFile = createImageFile()
-        currentPhotoPath = photoFile.absolutePath
-        currentPhotoUri = FileProvider.getUriForFile(
+        val photoUri = FileProvider.getUriForFile(
             this,
             "${packageName}.fileprovider",
             photoFile
         )
-        takePictureLauncher.launch(currentPhotoUri)
+        currentPhotoPath = photoFile.absolutePath
+        currentPhotoUri = photoUri
+        takePictureLauncher.launch(photoUri)
     }
 
     private fun createImageFile(): File {
