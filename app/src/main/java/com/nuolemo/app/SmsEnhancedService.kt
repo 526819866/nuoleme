@@ -148,10 +148,11 @@ class SmsEnhancedService : Service() {
             val channel = NotificationChannel(
                 channelId,
                 "增强短信监听",
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = "确保小米等系统能收到所有短信"
                 setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
 
             val notificationManager = getSystemService(NotificationManager::class.java)
@@ -184,13 +185,26 @@ class SmsEnhancedService : Service() {
 
         val detailText = "已处理 $smsProcessedCount 条短信 · $lastCheckText"
 
-        return Notification.Builder(this, channelId)
+        val builder = Notification.Builder(this, channelId)
             .setContentTitle(statusText)
             .setContentText(detailText)
             .setSmallIcon(R.drawable.ic_car)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .build()
+            .setShowWhen(true)
+            .setWhen(startTime)
+
+        // ColorOS 需要设置 category 才能正确显示前台服务通知
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setCategory(Notification.CATEGORY_SERVICE)
+        }
+
+        // Android 12+ 设置前台服务行为
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
+        }
+
+        return builder.build()
     }
 
     private fun updateNotification() {
