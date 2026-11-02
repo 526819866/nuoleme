@@ -31,6 +31,14 @@ class SmsEnhancedService : Service() {
     private var lastCheckTime: Long = 0
     private var shizukuAvailable: Boolean = false
 
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val updateNotificationRunnable = object : Runnable {
+        override fun run() {
+            updateNotification()
+            handler.postDelayed(this, UPDATE_INTERVAL_MS)
+        }
+    }
+
     private val shizukuBinderReceivedListener = Shizuku.OnBinderReceivedListener {
         shizukuAvailable = Shizuku.pingBinder()
         Log.d(TAG, "Shizuku 连接状态: $shizukuAvailable")
@@ -61,6 +69,9 @@ class SmsEnhancedService : Service() {
             true,
             smsObserver!!
         )
+
+        // 启动定时更新通知
+        handler.post(updateNotificationRunnable)
 
         EventLogger.log(this, "增强模式", "ContentObserver 已注册")
     }
@@ -227,6 +238,9 @@ class SmsEnhancedService : Service() {
     }
 
     override fun onDestroy() {
+        // 停止定时更新
+        handler.removeCallbacks(updateNotificationRunnable)
+
         // 移除 Shizuku 监听器
         try {
             if (shizukuAvailable) {
@@ -250,6 +264,7 @@ class SmsEnhancedService : Service() {
     companion object {
         private const val TAG = "SmsEnhancedService"
         private const val NOTIFICATION_ID = 1002
+        private const val UPDATE_INTERVAL_MS = 60000L  // 每分钟更新一次通知
 
         fun start(context: Context) {
             val intent = Intent(context, SmsEnhancedService::class.java)
