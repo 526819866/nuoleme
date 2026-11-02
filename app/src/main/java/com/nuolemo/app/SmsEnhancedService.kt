@@ -31,14 +31,6 @@ class SmsEnhancedService : Service() {
     private var lastCheckTime: Long = 0
     private var shizukuAvailable: Boolean = false
 
-    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
-    private val updateNotificationRunnable = object : Runnable {
-        override fun run() {
-            updateNotification()
-            handler.postDelayed(this, UPDATE_INTERVAL_MS)
-        }
-    }
-
     private val shizukuBinderReceivedListener = Shizuku.OnBinderReceivedListener {
         shizukuAvailable = Shizuku.pingBinder()
         Log.d(TAG, "Shizuku 连接状态: $shizukuAvailable")
@@ -55,6 +47,7 @@ class SmsEnhancedService : Service() {
         super.onCreate()
         Log.d(TAG, "增强模式服务启动")
         startTime = System.currentTimeMillis()
+        startedAtMillis = startTime
 
         // 初始化 Shizuku
         initShizuku()
@@ -69,9 +62,6 @@ class SmsEnhancedService : Service() {
             true,
             smsObserver!!
         )
-
-        // 启动定时更新通知
-        handler.post(updateNotificationRunnable)
 
         EventLogger.log(this, "增强模式", "ContentObserver 已注册")
     }
@@ -204,6 +194,7 @@ class SmsEnhancedService : Service() {
             .setOngoing(true)
             .setShowWhen(true)
             .setWhen(startTime)
+            .setOnlyAlertOnce(true)  // 只在首次显示时震动，更新时不震动
 
         // ColorOS 需要设置 category 才能正确显示前台服务通知
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -238,8 +229,7 @@ class SmsEnhancedService : Service() {
     }
 
     override fun onDestroy() {
-        // 停止定时更新
-        handler.removeCallbacks(updateNotificationRunnable)
+        startedAtMillis = 0L
 
         // 移除 Shizuku 监听器
         try {
@@ -264,7 +254,25 @@ class SmsEnhancedService : Service() {
     companion object {
         private const val TAG = "SmsEnhancedService"
         private const val NOTIFICATION_ID = 1002
-        private const val UPDATE_INTERVAL_MS = 60000L  // 每分钟更新一次通知
+
+        @Volatile
+        private var startedAtMillis: Long = 0L
+
+        /**
+         * 获取服务运行时长（毫秒），如果服务未运行返回 0
+         */
+        fun getRunningDurationMillis(): Long {
+            return if (startedAtMillis > 0) {
+                System.currentTimeMillis() - startedAtMillis
+            } else {
+                0L
+            }
+        }
+
+        /**
+         * 服务是否正在运行
+         */
+        fun isRunning(): Boolean = startedAtMillis > 0L
 
         fun start(context: Context) {
             val intent = Intent(context, SmsEnhancedService::class.java)
@@ -276,6 +284,7 @@ class SmsEnhancedService : Service() {
         }
 
         fun stop(context: Context) {
+            startedAtMillis = 0L
             val intent = Intent(context, SmsEnhancedService::class.java)
             context.stopService(intent)
         }

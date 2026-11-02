@@ -31,6 +31,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textCloseNote: TextView
     private lateinit var textRuleSummary: TextView
     private lateinit var textAlarmSummary: TextView
+    private lateinit var dividerEnhancedMode: View
+    private lateinit var textEnhancedModeLabel: TextView
+    private lateinit var textEnhancedModeSummary: TextView
     private lateinit var chipSmsPermission: Chip
     private lateinit var chipNotificationPermission: Chip
     private lateinit var chipFullScreenPermission: Chip
@@ -40,6 +43,14 @@ class MainActivity : AppCompatActivity() {
 
     private var renderingState = false
     private var primaryAction = PrimaryAction.OPEN_SETTINGS
+
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val updateRuntimeRunnable = object : Runnable {
+        override fun run() {
+            updateEnhancedModeRuntime()
+            handler.postDelayed(this, 60000L)  // 每分钟更新一次
+        }
+    }
 
     private val settingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -63,6 +74,14 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refreshUi()
+        // 启动运行时间定时更新
+        handler.post(updateRuntimeRunnable)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // 停止运行时间定时更新
+        handler.removeCallbacks(updateRuntimeRunnable)
     }
 
     private fun bindViews() {
@@ -78,6 +97,9 @@ class MainActivity : AppCompatActivity() {
         textCloseNote = findViewById(R.id.textCloseNote)
         textRuleSummary = findViewById(R.id.textRuleSummary)
         textAlarmSummary = findViewById(R.id.textAlarmSummary)
+        dividerEnhancedMode = findViewById(R.id.dividerEnhancedMode)
+        textEnhancedModeLabel = findViewById(R.id.textEnhancedModeLabel)
+        textEnhancedModeSummary = findViewById(R.id.textEnhancedModeSummary)
         chipSmsPermission = findViewById(R.id.chipSmsPermission)
         chipNotificationPermission = findViewById(R.id.chipNotificationPermission)
         chipFullScreenPermission = findViewById(R.id.chipFullScreenPermission)
@@ -180,6 +202,20 @@ class MainActivity : AppCompatActivity() {
             health.essentialMissingCount > 0 -> renderAttentionState(health.essentialMissingCount)
             !health.fullScreenAllowed -> renderLimitedState()
             else -> renderReadyState()
+        }
+
+        // 显示增强模式运行时间
+        if (settings.enabled && settings.enhancedMode && SmsEnhancedService.isRunning()) {
+            dividerEnhancedMode.visibility = View.VISIBLE
+            textEnhancedModeLabel.visibility = View.VISIBLE
+            textEnhancedModeSummary.visibility = View.VISIBLE
+            textEnhancedModeSummary.text = formatEnhancedModeRuntime(
+                SmsEnhancedService.getRunningDurationMillis()
+            )
+        } else {
+            dividerEnhancedMode.visibility = View.GONE
+            textEnhancedModeLabel.visibility = View.GONE
+            textEnhancedModeSummary.visibility = View.GONE
         }
     }
 
@@ -296,6 +332,28 @@ class MainActivity : AppCompatActivity() {
         val textColor = ContextCompat.getColor(this, tone.textColorRes)
         chip.chipBackgroundColor = android.content.res.ColorStateList.valueOf(backgroundColor)
         chip.setTextColor(textColor)
+    }
+
+    private fun formatEnhancedModeRuntime(millis: Long): String {
+        val seconds = millis / 1000
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        val days = hours / 24
+
+        return when {
+            days > 0 -> "已持续运行 ${days}天${hours % 24}小时"
+            hours > 0 -> "已持续运行 ${hours}小时${minutes % 60}分钟"
+            minutes > 0 -> "已持续运行 ${minutes}分钟"
+            else -> "已持续运行 ${seconds}秒"
+        }
+    }
+
+    private fun updateEnhancedModeRuntime() {
+        if (textEnhancedModeSummary.visibility == View.VISIBLE && SmsEnhancedService.isRunning()) {
+            textEnhancedModeSummary.text = formatEnhancedModeRuntime(
+                SmsEnhancedService.getRunningDurationMillis()
+            )
+        }
     }
 
     private data class GuardHealth(

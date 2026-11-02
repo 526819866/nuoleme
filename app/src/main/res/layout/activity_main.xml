@@ -280,6 +280,35 @@
                         android:textSize="14sp"
                         tools:text="报警时长 60 秒 · 震动 开 · 音量 拉满" />
 
+                    <View
+                        android:id="@+id/dividerEnhancedMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@color/outline_soft"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/textEnhancedModeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="增强模式"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/textEnhancedModeSummary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:visibility="gone"
+                        tools:text="已持续运行 2小时30分钟" />
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
